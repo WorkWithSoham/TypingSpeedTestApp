@@ -98,7 +98,7 @@ export class MainGame extends React.Component {
 }
 
 async function getQuote(): Promise<string> {
-    const response = await fetch('https://api.quotable.io/random?minLength=50&maxLength=100')
+    const response = await fetch('https://api.quotable.io/random?minLength=150&maxLength=250')
     const data = await response.json()
 
     return data.content
