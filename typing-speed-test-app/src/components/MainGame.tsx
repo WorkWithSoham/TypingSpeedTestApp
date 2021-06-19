@@ -20,6 +20,7 @@ export class MainGame extends React.Component {
 
     componentDidMount() {
         getQuote().then((quote: string) => {
+            quote = quote.toLowerCase().replace(/[.,#!$%^&*;:{}=\-_`~()]/g,"")
             this.setState({ typeTest: quote })
             this.setState({ words: quote.split(' ') })
         });
