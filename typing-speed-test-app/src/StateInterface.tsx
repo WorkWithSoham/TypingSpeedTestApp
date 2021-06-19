@@ -1,6 +1,7 @@
 export interface BaseState {
     typeTest: string
     words: Array<string>
+    enteredWord: string
     enteredText: string
     correctCount: number
     started: boolean

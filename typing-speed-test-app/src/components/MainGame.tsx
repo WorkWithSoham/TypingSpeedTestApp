@@ -5,6 +5,7 @@ import { BaseState } from '../StateInterface';
 const initialState: BaseState = {
     typeTest: 'Click START to begin the test...',
     words: [],
+    enteredWord: '',
     enteredText: '',
     correctCount: 0,
     started: false,
@@ -20,10 +21,11 @@ export class MainGame extends React.Component {
 
     componentDidMount() {
         getQuote().then((quote: string) => {
-            quote = quote.toLowerCase().replace(/[.,#!$%^&*;:{}=\-_`~()]/g,"")
+            quote = quote.toLowerCase().replace(/[.,#!$%^&*;:{}=\-_`~()]/g, "")
             this.setState({ typeTest: quote })
             this.setState({ words: quote.split(' ') })
         });
+        DomManipulation('graytext', true);
     }
 
     startClicked = () => {
@@ -44,7 +46,7 @@ export class MainGame extends React.Component {
             const startTime = this.state.startTime ? this.state.startTime.getTime() : 0
 
             const finalTime = (currentTime.getTime() - startTime) / 1000
-            const speed = this.computeSpeed(this.state.typeTest.length, finalTime)
+            const speed = this.computeSpeed(this.state.enteredText.length, finalTime)
 
             this.setState({ finalTime: Math.round(finalTime), speed })
 
@@ -60,13 +62,16 @@ export class MainGame extends React.Component {
             this.setState({ started: true, startTime: new Date() })
         }
 
-        const enteredText = e.currentTarget.value.trim()
-        this.setState({ enteredText })
+        const enteredWord = e.currentTarget.value.trim()
+        this.setState({ enteredWord })
 
-        if (enteredText === this.state.words[0]) {
+        if (enteredWord === this.state.words[0]) {
             this.setState({ correctCount: this.state.correctCount + 1 })
-            this.setState({ enteredText: '' })
+            this.setState({ enteredWord: '' })
+            this.setState({ typeTest: this.state.typeTest.replace(enteredWord, '') })
             this.setState({ words: this.state.words.slice(1) }, (): void => this.checkFinished())
+
+            this.setState({ enteredText: this.state.enteredText + e.currentTarget.value + " " })
         }
 
     }
@@ -77,21 +82,33 @@ export class MainGame extends React.Component {
 
         return (
             <div className="container-sm">
-                <div className="col-md-8 offset-md-2 p-5 border rounded" id='QuoteBox'
-                    style={{ color: 'GrayText' }}>
-                    <h3>{this.state.typeTest}</h3>
+                <div className="col-md-8 offset-md-2 p-5 border rounded">
+                    <h3 id='QuoteBox'>
+                        <span style={{ color: '#12A630' }}>{this.state.enteredText}</span>
+                        <span>{this.state.typeTest}</span>
+                    </h3>
                 </div>
                 {speedRender}
                 <div className="col-md-6 pt-2 offset-md-3 pb-5">
                     <textarea
-                        value={this.state.enteredText}
+                        value={this.state.enteredWord}
                         onChange={this.onInputType}
                         className="form-control"
                         name="inputCol"
                         id="inputCol"
-                        placeholder="Begin writing here..." disabled ></textarea>
-                    <button className="btn btn-danger m-2" onClick={this.resetClicked}>Reset</button>
-                    <button className="btn btn-success m-2" onClick={this.startClicked}>Start</button>
+                        placeholder="Click Start to begin writing here..." disabled ></textarea>
+                    {
+                        this.state.started &&
+                        <button className="btn btn-danger m-2 mx-auto" onClick={this.resetClicked}>
+                            Reset
+                        </button>
+                    }
+                    {
+                        !this.state.started &&
+                        <button className="btn btn-success m-2 mx-auto" onClick={this.startClicked}>
+                            Start
+                        </button>
+                    }
                 </div>
             </div>
         );
